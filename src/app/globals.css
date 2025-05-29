@@ -1,0 +1,117 @@
+
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+  :root {
+    --background: 218 16% 95%;
+    --foreground: 215 30% 18%;
+    --card: 0 0% 100%;
+    --card-foreground: 215 30% 18%;
+    --popover: 0 0% 100%;
+    --popover-foreground: 215 30% 18%;
+    --primary: 189 83% 45%;
+    --primary-foreground: 0 0% 100%;
+    --secondary: 191 10% 66%;
+    --secondary-foreground: 215 30% 18%;
+    --muted: 215 14% 90%;
+    --muted-foreground: 215 16% 47%;
+    --accent: 190 37% 50%;
+    --accent-foreground: 215 30% 18%;
+    --destructive: 0 84% 60%;
+    --destructive-foreground: 0 0% 100%;
+    --success: 142 76% 47%;
+    --success-foreground: 0 0% 100%;
+    --border: 215 16% 90%;
+    --input: 215 16% 90%;
+    --ring: 189 83% 45%;
+    --radius: 0.5rem;
+  }
+
+  .dark {
+    --background: 215 30% 18%;
+    --foreground: 0 0% 95%;
+    --card: 215 28% 15%;
+    --card-foreground: 0 0% 95%;
+    --popover: 215 28% 15%;
+    --popover-foreground: 0 0% 95%;
+    --primary: 189 83% 45%;
+    --primary-foreground: 0 0% 95%;
+    --secondary: 215 25% 25%;
+    --secondary-foreground: 0 0% 95%;
+    --muted: 215 25% 25%;
+    --muted-foreground: 215 20% 65%;
+    --accent: 190 37% 50%;
+    --accent-foreground: 0 0% 95%;
+    --destructive: 0 63% 31%;
+    --destructive-foreground: 0 0% 95%;
+    --success: 142 76% 36%;
+    --success-foreground: 0 0% 95%;
+    --border: 215 25% 25%;
+    --input: 215 25% 25%;
+    --ring: 189 83% 45%;
+  }
+}
+
+@layer base {
+  * {
+    @apply border-border;
+  }
+  body {
+    @apply bg-background text-foreground font-poppins;
+  }
+  h1, h2, h3, h4, h5, h6 {
+    @apply font-medium;
+  }
+}
+
+@layer components {
+  .container-custom {
+    @apply max-w-7xl mx-auto px-4 sm:px-6 lg:px-8;
+  }
+
+  .discount-badge {
+    @apply inline-flex items-center justify-center whitespace-nowrap rounded-md px-2.5 py-0.5 text-xs font-medium bg-primary text-primary-foreground;
+  }
+
+  .in-stock {
+    @apply inline-flex items-center justify-center whitespace-nowrap rounded-md px-2.5 py-0.5 text-xs font-medium bg-success text-success-foreground;
+  }
+}
+
+
+.slick-prev:before,
+.slick-next:before {
+  display: none !important;
+  opacity: 0.5; /* Make the arrows semi-transparent */
+  transition: opacity 0.3s ease; /* Smooth transition for opacity change */
+}
+
+
+.custom-arrow.prev-arrow {
+  left: 20px !important; /* Move inward from the left side */
+  z-index: 10;
+}
+
+.custom-arrow.next-arrow {
+  right: 38px !important; /* Move inward from the right side */
+  z-index: 10;
+}
+
+@media (max-width: 768px) {
+  .custom-arrow.prev-arrow {
+    left: 10px !important;
+  }
+  .custom-arrow.next-arrow {
+    right: 10px !important;
+  }
+}
+
+
+
+
+.slick-arrow {
+  z-index: 10;
+  position: absolute !important;
+}
