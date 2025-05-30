@@ -64,9 +64,9 @@ const SOCIAL_LINKS = [
 
 const MOBILE_NAV_ITEMS = [
   { href: "/", label: "Home" },
-  { href: "/category/desktops", label: "Desktops" },
-  { href: "/category/notebooks", label: "Notebooks" },
-  { href: "/category/smartphones", label: "Smartphones" },
+  { href: "/category/6827bfad058c645e30d45996", label: "Desktops" },
+  { href: "/category/6827bfad058c645e30d45997", label: "Notebooks" },
+  { href: "/category/6827bfad058c645e30d4598a", label: "Smartphones" },
   { href: "/faq", label: "FAQ's" },
   { href: "/contact", label: "Contact Us" },
 ];
