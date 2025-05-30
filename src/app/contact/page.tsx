@@ -16,10 +16,14 @@ import {
 } from "lucide-react";
 import { useState } from "react";
 import MainLayout from "@/components/layout/MainLayout";
+import type { SVGProps } from "react";
+
+
+type IconType = React.ComponentType<SVGProps<SVGSVGElement>>;
 
 interface ContactMethod {
   id: string;
-  icon: React.ComponentType<any>;
+  icon: IconType;
   title: string;
   description: string;
   value: string;
@@ -28,7 +32,7 @@ interface ContactMethod {
 
 interface SocialLink {
   id: string;
-  icon: React.ComponentType<any>;
+  icon: IconType;
   name: string;
   url: string;
   color: string;

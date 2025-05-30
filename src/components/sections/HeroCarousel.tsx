@@ -9,6 +9,7 @@ import {
 } from "@/components/ui/carousel";
 import { Button } from "@/components/ui/button";
 import Link from "next/link";
+import Image from "next/image";
 
 const slides = [
   {
@@ -37,24 +38,34 @@ const slides = [
 
 export default function HeroCarousel() {
   return (
+    
     <div className="relative">
       <Carousel className="w-full">
         <CarouselContent>
           {slides.map((slide) => (
             <CarouselItem key={slide.id}>
               <div className="relative overflow-hidden min-h-[320px] md:min-h-[480px]">
-                <img
+                <Image
                   src={slide.image}
                   alt={slide.title}
-                  className="absolute inset-0 w-full h-full object-cover"
+                  fill // makes image cover the parent container, like absolute inset-0 w-full h-full
+                  style={{ objectFit: "cover" }}
+                  priority // optional, if you want this image to be preloaded for better LCP
                 />
                 <div className="absolute inset-0 bg-gradient-to-r from-black/60 to-transparent flex items-center">
                   <div className="container-custom">
                     <div className="max-w-xl text-white px-4 md:px-0">
-                      <h1 className="text-3xl md:text-5xl font-bold tracking-tight mb-3">{slide.title}</h1>
-                      <p className="text-white/80 text-lg md:text-xl mb-6">{slide.subtitle}</p>
+                      <h1 className="text-3xl md:text-5xl font-bold tracking-tight mb-3">
+                        {slide.title}
+                      </h1>
+                      <p className="text-white/80 text-lg md:text-xl mb-6">
+                        {slide.subtitle}
+                      </p>
                       {slide.ctaText && (
-                        <Button asChild size="lg" className="rounded-none bg-primary hover:bg-primary/90">
+                        <Button
+                          asChild
+                          size="lg"
+                          className="rounded-none bg-primary hover:bg-primary/90">
                           <Link href={slide.link}>{slide.ctaText}</Link>
                         </Button>
                       )}

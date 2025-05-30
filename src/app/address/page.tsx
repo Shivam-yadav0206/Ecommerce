@@ -8,7 +8,7 @@ import { RootState } from "@/store/store";
 import axiosInstance from "@/api/axios";
 import { setUser } from "@/store/userSlice";
 
-interface Address {
+interface AddressType {
   id: number;
   type: string;
   name: string;
@@ -21,7 +21,7 @@ interface Address {
 const Address = () => {
   const user = useSelector((state: RootState) => state.user.user);
   const dispatch = useDispatch();
-  const [addresses, setAddresses] = useState<Address[]>([]);
+  const [addresses, setAddresses] = useState<AddressType[]>([]);
   const [loadingId, setLoadingId] = useState<number | null>(null);
 
   // Modal open state
@@ -29,7 +29,7 @@ const Address = () => {
 
   // New address form state
   const [newAddress, setNewAddress] = useState<
-    Omit<Address, "id" | "isDefault">
+    Omit<AddressType, "id" | "isDefault">
   >({
     type: "",
     name: "",
@@ -39,8 +39,9 @@ const Address = () => {
   });
 
   useEffect(() => {
-    setAddresses(user?.addresses || []);
+    setAddresses((user?.addresses as AddressType[]) || []);
   }, [user]);
+  
 
   const handleDelete = async (id: number) => {
     const confirmed = window.confirm(
@@ -54,7 +55,7 @@ const Address = () => {
       const res = await axiosInstance.patch("/remove/address", { id });
 
       if (res.data && Array.isArray(res.data.addresses)) {
-        const updatedAddresses: Address[] = res.data.addresses;
+        const updatedAddresses: AddressType[] = res.data.addresses;
         setAddresses(updatedAddresses);
 
         if (user) {
@@ -107,7 +108,7 @@ const Address = () => {
       const res = await axiosInstance.post("/add/address", newAddress);
 
       if (res.data && Array.isArray(res.data.addresses)) {
-        const updatedAddresses: Address[] = res.data.addresses;
+        const updatedAddresses: AddressType[] = res.data.addresses;
         setAddresses(updatedAddresses);
 
         if (user) {

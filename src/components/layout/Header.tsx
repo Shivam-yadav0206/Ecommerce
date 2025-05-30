@@ -201,7 +201,7 @@ const ActionButton = ({
   isAuthenticated,
   setLoginOpen,
 }: {
-  icon: string;
+  icon: React.ComponentType<React.SVGProps<SVGSVGElement>>; // <-- change here
   count: number;
   onClick: () => void;
   isAuthenticated: boolean;

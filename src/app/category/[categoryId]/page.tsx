@@ -43,7 +43,7 @@ export default function CategoryPage() {
       }
     };
     getProducts();
-  }, []);
+  }, [catId]);
   return (
     <MainLayout>
       <section className="py-12">

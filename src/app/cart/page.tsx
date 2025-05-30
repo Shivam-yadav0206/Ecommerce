@@ -1,15 +1,15 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useState, useEffect, useCallback } from "react";
 import MainLayout from "@/components/layout/MainLayout";
 import Image from "next/image";
-import { useSelector } from "react-redux";
+import { useSelector, useDispatch } from "react-redux";
 import type { RootState } from "../../store/store";
 import axiosInstance from "@/api/axios";
-import { useDispatch } from "react-redux";
 import { updateCartItemDetails } from "@/store/cartSlice";
 import SideLayout from "@/components/layout/SideLayout";
 import { fallbackImage } from "@/lib/utils";
+
 interface ProductDetails {
   _id: string;
   name: string | null;
@@ -29,7 +29,23 @@ export default function Cart() {
   const cachedCartItems = useSelector((state: RootState) => state.cart.items);
   const dispatch = useDispatch();
 
-  // ✅ Check cart validity and fetch if needed
+  // ✅ Memoized version of getCartItems to avoid re-creating on every render
+  const getCartItems = useCallback(async () => {
+    try {
+      const response = await axiosInstance.get("/cart/viewItems");
+
+      const items = response.data;
+      setCartItems(items);
+
+      items.forEach((item: ProductDetails) => {
+        dispatch(updateCartItemDetails(item));
+      });
+    } catch (error) {
+      console.error("Failed to fetch cart items:", error);
+    }
+  }, [dispatch]);
+
+  // ✅ Effect to load cart data on mount or cache change
   useEffect(() => {
     const hasHydratedCart =
       cachedCartItems.length > 0 &&
@@ -40,25 +56,7 @@ export default function Cart() {
     } else {
       getCartItems();
     }
-  }, [cachedCartItems]);
-
-
-  const getCartItems = async () => {
-    try {
-      const response = await axiosInstance.get("/cart/viewItems");
-
-      // Assuming response.data is an array of full cart products (with quantity)
-      const items = response.data;
-      setCartItems(items);
-
-      // Hydrate Redux cart items
-      items.forEach((item: ProductDetails ) => {
-        dispatch(updateCartItemDetails(item));
-      });
-    } catch (error) {
-      console.error("Failed to fetch cart items:", error);
-    }
-  };
+  }, [cachedCartItems, getCartItems]);
 
   const applyCoupon = () => {
     if (couponCode.trim().toLowerCase() === "save10") {
@@ -72,7 +70,6 @@ export default function Cart() {
     setIsOpen(!isOpen);
   };
 
-  // 📦 Cart summary calculation (this can be dynamic)
   const cartSummary = {
     subtotal: 3999,
     discount: couponApplied ? 400 : 0,

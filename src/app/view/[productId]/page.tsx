@@ -36,13 +36,13 @@ export default function ProductView() {
       try {
         const response = await axiosInstance.get(`/view/${productId}`);
         setProductDetails(response?.data);
-        //console.log(response?.data);
       } catch (error) {
         console.log(error.message);
       }
     };
-    getDetails();
-  }, []);
+    if (productId) getDetails();
+  }, [productId]);
+  
 
   return (
     <MainLayout>

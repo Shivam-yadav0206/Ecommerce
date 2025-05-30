@@ -10,6 +10,17 @@ import { setCart, clearCart } from "@/store/cartSlice";
 import { setWishlistFromIds, clearWishlist } from "@/store/wishlistSlice";
 import Loader from "@/components/common/Loader";
 
+// ✅ Move this outside the component to avoid redefinition and hook warning
+const protectedRoutes = [
+  "/profile",
+  "/cart",
+  "/wishlist",
+  "/routes",
+  "/order",
+  "/address",
+  "/settings",
+];
+
 export default function ClientBody({
   children,
 }: {
@@ -25,21 +36,10 @@ export default function ClientBody({
 
   const [rehydrating, setRehydrating] = useState(true);
 
-  const protectedRoutes = [
-    "/profile",
-    "/cart",
-    "/wishlist",
-    "/routes",
-    "/order",
-    "/address",
-    "/settings",
-  ];
-
   useEffect(() => {
     const rehydrateUser = async () => {
       try {
         const response = await axiosInstance.get("/profile/view/");
-
         const user = response?.data || null;
 
         if (user) {
@@ -76,13 +76,11 @@ export default function ClientBody({
             )
           );
         } else {
-          // fallback: no user data found
           dispatch(clearUser());
           dispatch(clearCart());
           dispatch(clearWishlist());
         }
       } catch {
-        // 🔇 Silent catch – suppress console errors for fallback
         dispatch(clearUser());
         dispatch(clearCart());
         dispatch(clearWishlist());

@@ -31,6 +31,17 @@ export default function Wishlist() {
   const dispatch = useDispatch();
 
   useEffect(() => {
+    const getWishlistItems = async () => {
+      try {
+        const response = await axiosInstance.get("wish/viewItems");
+        const items = response?.data?.data;
+        setWishlistItems(items);
+        dispatch(setWishlistCache(items));
+      } catch (error) {
+        console.error("Failed to fetch wishlist items:", error);
+      }
+    };
+
     const hasHydratedWishlist =
       cachedWishlistItems.length > 0 &&
       cachedWishlistItems.every((item) => item?.name);
@@ -40,18 +51,8 @@ export default function Wishlist() {
     } else {
       getWishlistItems();
     }
-  }, [cachedWishlistItems]);
-
-  const getWishlistItems = async () => {
-    try {
-      const response = await axiosInstance.get("wish/viewItems");
-      const items = response?.data?.data;
-      setWishlistItems(items);
-      dispatch(setWishlistCache(items));
-    } catch (error) {
-      console.error("Failed to fetch wishlist items:", error);
-    }
-  };
+  }, [cachedWishlistItems, dispatch]);
+  
 
   const getStatusString = (stock: number): string => {
     return stock === 0 ? "Stock Out" : stock < 10 ? "Low Stock" : "In Stock";

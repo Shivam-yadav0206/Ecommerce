@@ -1,6 +1,14 @@
 import { clsx, type ClassValue } from "clsx"
 import { twMerge } from "tailwind-merge"
 
+
+type RGBColor = {
+  r: number;
+  g: number;
+  b: number;
+};
+
+
 export function cn(...inputs: ClassValue[]) {
   return twMerge(clsx(inputs))
 }
@@ -36,7 +44,7 @@ function hexToRgb(hex: string) {
   };
 }
 
-function colorDistance(c1: any, c2: any) {
+function colorDistance(c1: RGBColor, c2: RGBColor): number {
   return Math.sqrt(
     Math.pow(c1.r - c2.r, 2) +
       Math.pow(c1.g - c2.g, 2) +

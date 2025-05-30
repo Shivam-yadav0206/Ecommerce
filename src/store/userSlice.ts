@@ -1,7 +1,7 @@
 import { createSlice, PayloadAction } from "@reduxjs/toolkit";
 
 interface Address {
-  _id: number;
+  id: number;
   type: string;
   name: string;
   address: string;
