@@ -28,8 +28,12 @@ export default function SideLayout({ children }: SideLayoutProps) {
   const dispatch = useDispatch();
   const lastSegment = usePathname().split("/").filter(Boolean).pop();
 
-  const { name, email } = useSelector((state: RootState) => state?.user?.user);
-
+  const name = useSelector((state: RootState) => state?.user?.user?.name || "");
+  const email = useSelector(
+    (state: RootState) => state?.user?.user?.email || ""
+  );
+  
+  
   const handleLogout = async () => {
     try {
       await axiosInstance.post("/logout");

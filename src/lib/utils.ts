@@ -5,6 +5,8 @@ export function cn(...inputs: ClassValue[]) {
   return twMerge(clsx(inputs))
 }
 
+export const fallbackImage =
+  "https://cdn.shopify.com/s/files/1/0070/7032/articles/ecommerce_20tools_a767d3aa-6d44-4784-9703-0f7cf69ecd5a.png?v=1738869114";
 
 type TailwindColorClass = {
   name: string;

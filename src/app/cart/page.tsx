@@ -9,7 +9,7 @@ import axiosInstance from "@/api/axios";
 import { useDispatch } from "react-redux";
 import { updateCartItemDetails } from "@/store/cartSlice";
 import SideLayout from "@/components/layout/SideLayout";
-
+import { fallbackImage } from "@/lib/utils";
 interface ProductDetails {
   _id: string;
   name: string | null;
@@ -41,6 +41,7 @@ export default function Cart() {
       getCartItems();
     }
   }, [cachedCartItems]);
+
 
   const getCartItems = async () => {
     try {
@@ -79,7 +80,7 @@ export default function Cart() {
     tax: 80,
     total: couponApplied ? 3679 : 4079,
   };
-console.log(cartItems)
+
   return (
     <MainLayout>
       <SideLayout>
@@ -104,14 +105,18 @@ console.log(cartItems)
             <div className="flex flex-col lg:flex-row gap-6">
               {/* Wishlist Items Column */}
               <div className="w-full lg:w-2/3 flex flex-col">
-                {cartItems.map((item) => (
+                {cartItems.map((item, idx) => (
                   <article
-                    key={item.productId}
+                    key={idx}
                     className="flex flex-col md:flex-row shadow-lg mx-auto rounded-2xl overflow-hidden mb-6 group cursor-pointer transform transition-all duration-300 hover:-translate-y-1 border border-slate-200 dark:border-gray-700 bg-white dark:bg-gray-800">
                     <div className="md:w-1/3 lg:w-1/4">
                       <Image
                         className="w-full h-60 md:h-full object-cover"
-                        src="https://i.ibb.co/Kr4b0zJ/152013403-10158311889099633-8423107287930246533-o.jpg"
+                        src={
+                          Array.isArray(item?.imageUrls) && item?.imageUrls?.[0]
+                            ? item.imageUrls[0]
+                            : fallbackImage
+                        }
                         alt="The Magnificent Bogra"
                         width={300}
                         height={400}

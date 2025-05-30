@@ -43,46 +43,46 @@ export default function LoginModal({ isOpen, onClose }: LoginModalProps) {
       });
 
       // Check for success (usually HTTP 200) and required user data presence
-      // if (response.status === 200 && response.data?._id) {
-      //   toast.success(`Welcome back ${response.data.name}`);
-      //   dispatch(
-      //     setUser({
-      //       _id: response.data._id,
-      //       name: response.data.name,
-      //       email: response.data.email,
-      //       avatar: response.data.avatar,
-      //       role: response.data.role,
-      //       age: response.data.age,
-      //       gender: response.data.gender,
-      //       googleId: null,
-      //       addresses: response.data.addresses
-      //     })
-      //   );
+      if (response.status === 200 && response.data?._id) {
+        toast.success(`Welcome back ${response.data.name}`);
+        dispatch(
+          setUser({
+            _id: response.data._id,
+            name: response.data.name,
+            email: response.data.email,
+            avatar: response.data.avatar,
+            role: response.data.role,
+            age: response.data.age,
+            gender: response.data.gender,
+            googleId: null,
+            addresses: response.data.addresses
+          })
+        );
         
-      //   // ✅ Fixing wishlist mapping
-      //   dispatch(
-      //     setWishlistFromIds(
-      //       response?.data?.wishlist?.map(
-      //         (item: { product: string }) => item.product
-      //       ) || []
-      //     )
-      //   );
+        // ✅ Fixing wishlist mapping
+        dispatch(
+          setWishlistFromIds(
+            response?.data?.wishlist?.map(
+              (item: { product: string }) => item.product
+            ) || []
+          )
+        );
 
-      //   // ✅ Fixing cart mapping
-      //   dispatch(
-      //     setCart(
-      //       response?.data?.cart?.map(
-      //         (item: { product: string; quantity: number }) => ({
-      //           productId: item.product,
-      //           quantity: item.quantity,
-      //         })
-      //       ) || []
-      //     )
-      //   );
-      // } else {
-      //   // Login failed: maybe notify user or clear auth state
-      //   dispatch(clearUser());
-      // }
+        // ✅ Fixing cart mapping
+        dispatch(
+          setCart(
+            response?.data?.cart?.map(
+              (item: { product: string; quantity: number }) => ({
+                productId: item.product,
+                quantity: item.quantity,
+              })
+            ) || []
+          )
+        );
+      } else {
+        // Login failed: maybe notify user or clear auth state
+        dispatch(clearUser());
+      }
       setIsLoading(false);
       onClose()
     } catch (error) {

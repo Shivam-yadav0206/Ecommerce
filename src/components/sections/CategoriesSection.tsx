@@ -32,10 +32,10 @@ export default function CategoriesSection() {
           {categories.map((category, index) => (
             <Link
               key={index}
-              href={category.href}
+              href={category?.href}
               className="bg-card hover:bg-primary/5 border border-border/40 p-4 rounded-md transition-colors text-center flex items-center justify-center h-16"
             >
-              <span className="font-medium">{category.name}</span>
+              <span className="font-medium">{category?.name}</span>
             </Link>
           ))}
         </div>

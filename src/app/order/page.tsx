@@ -6,6 +6,8 @@ import Image from "next/image";
 import { Trash2, Plus, Search, Filter } from "lucide-react";
 import axiosInstance from "@/api/axios";
 import SideLayout from "@/components/layout/SideLayout";
+import { fallbackImage } from "@/lib/utils";
+
 
 export default function Order() {
   const [searchTerm, setSearchTerm] = useState("");
@@ -179,7 +181,7 @@ export default function Order() {
                         <Image
                           width={40}
                           height={40}
-                          src={item.imageUrl || "/fallback-image.png"}
+                          src={item.imageUrl || fallbackImage}
                           alt={item.name}
                           className="w-16 h-16 rounded-lg object-cover flex-shrink-0"
                         />

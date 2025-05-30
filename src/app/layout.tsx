@@ -31,7 +31,7 @@ export default function RootLayout({
       <body className="antialiased">
         <ReduxProvider>
           <ThemeProvider>
-            {children}
+            <ClientBody>{children}</ClientBody>
           </ThemeProvider>
         </ReduxProvider>
       </body>

@@ -8,6 +8,7 @@ import { Heart, ShoppingCart, Eye } from "lucide-react";
 import { useState } from "react";
 import Image from "next/image";
 import { getClosestTailwindClass } from "@/lib/utils";
+import { fallbackImage } from "@/lib/utils";
 
 export interface ProductProps {
   _id: string;
@@ -50,9 +51,7 @@ export default function ProductCard({
   // console.log(colorsArray)
   const [selectedSize, setSelectedSize] = useState<string>(sizes[0] || "");
   const [selectedColor, setSelectedColor] = useState<string>("");
-  const fallbackImage =
-    "https://media.istockphoto.com/id/1354749397/vector/laptop-and-mobile-phone-with-blank-screens.jpg?s=612x612&w=0&k=20&c=Jd8kHcUhDOfqa2YiE4m87Q3oRqqT01tOTYGLHx2G85E=";
-
+  
   const getColorClass = (color: string) => {
     console.log(color)
     if (/^#([0-9A-Fa-f]{3}){1,2}$/.test(color)) {
