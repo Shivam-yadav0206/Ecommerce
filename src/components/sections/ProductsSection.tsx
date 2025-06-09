@@ -15,6 +15,7 @@ interface ProductsSectionProps {
   subtitle?: string;
   type: "offers" | "notebooks" | "smartphones";
   products: ProductProps[];
+  loading: boolean;
 }
 
 export default function ProductsSection({

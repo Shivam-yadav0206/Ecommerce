@@ -7,8 +7,9 @@ import { Trash2, Plus, Search, Filter } from "lucide-react";
 import axiosInstance from "@/api/axios";
 import { useDispatch, useSelector } from "react-redux";
 import type { RootState } from "../../store/store";
-import { setWishlistCache } from "@/store/wishlistSlice";
+import { removeFromWishlist, setWishlistCache } from "@/store/wishlistSlice";
 import SideLayout from "@/components/layout/SideLayout";
+import { addItem } from "@/store/cartSlice";
 
 interface Product {
   _id: string;
@@ -31,28 +32,32 @@ export default function Wishlist() {
   const dispatch = useDispatch();
 
   useEffect(() => {
+    // Show cached data instantly
+    if (cachedWishlistItems.length > 0) {
+      setWishlistItems(cachedWishlistItems);
+    }
+
+    // Always fetch fresh data
     const getWishlistItems = async () => {
       try {
         const response = await axiosInstance.get("wish/viewItems");
-        const items = response?.data?.data;
-        setWishlistItems(items);
-        dispatch(setWishlistCache(items));
+        const fetchedItems: Product[] = response?.data?.data || [];
+
+        // Only update Redux store if items have changed
+        const hasChanged =
+          JSON.stringify(fetchedItems) !== JSON.stringify(cachedWishlistItems);
+
+        if (hasChanged) {
+          dispatch(setWishlistCache(fetchedItems));
+          setWishlistItems(fetchedItems);
+        }
       } catch (error) {
         console.error("Failed to fetch wishlist items:", error);
       }
     };
 
-    const hasHydratedWishlist =
-      cachedWishlistItems.length > 0 &&
-      cachedWishlistItems.every((item) => item?.name);
-
-    if (hasHydratedWishlist) {
-      setWishlistItems(cachedWishlistItems);
-    } else {
-      getWishlistItems();
-    }
-  }, [cachedWishlistItems, dispatch]);
-  
+    getWishlistItems();
+  }, [dispatch]); // Runs once on mount
 
   const getStatusString = (stock: number): string => {
     return stock === 0 ? "Stock Out" : stock < 10 ? "Low Stock" : "In Stock";
@@ -71,20 +76,61 @@ export default function Wishlist() {
     }
   };
 
-  const addToCart = (productId: string) => {
-    console.log(`Added product ${productId} to cart`);
-  };
+  const addToCart = async ({
+    _id,
+    name,
+    rating,
+    specs,
+    price,
+    imageUrls = [], // default to empty array if undefined
+  }: {
+    _id: string;
+    name: string | null;
+    rating: { average: number; count: number } | null;
+    specs: Record<string, string> | null;
+    price: number | null;
+    imageUrls?: string[] | null;
+  }) => {
+    try {
+      await axiosInstance.post("/cart/addItem", {
+        itemId: _id,
+        newQuantity: 1,
+      });
 
-  const removeProduct = (productId: string) => {
-    setWishlistItems((prev) =>
-      prev.filter((product) => product?._id !== productId)
-    );
+      dispatch(
+        addItem({
+          productId: _id,
+          quantity: 1,
+          details: {
+            _id,
+            name,
+            rating,
+            specs,
+            price,
+            stock: 13,
+            imageUrls: imageUrls || [],
+          },
+        })
+      );
+    } catch (error) {
+      console.log(error.message);
+    }
+  };
+  
+  const removeProduct = async (productId: string) => {
+    try {
+      await axiosInstance.post("wish/removeItem", { itemId: productId });
+      dispatch(removeFromWishlist(productId));
+      setWishlistItems((prev) => prev.filter((item) => item._id !== productId));
+    } catch (error) {
+      console.log(error.message);
+    }
   };
 
   const filteredWishlistItems = wishlistItems.filter((product) => {
     const statusString = getStatusString(product.stock);
     const matchesSearch = product.name
-      .toLowerCase()
+      ?.toLowerCase()
       .includes(searchTerm.toLowerCase());
     const matchesFilter =
       filterStatus === "all" || filterStatus === statusString;
@@ -154,7 +200,7 @@ export default function Wishlist() {
                           </div>
                           <div className="min-w-0">
                             <h3 className="dark:text-slate-200 font-semibold text-slate-800 text-sm md:text-lg truncate">
-                              {product.name}
+                              {product?.name}
                             </h3>
                           </div>
                         </div>
@@ -168,7 +214,7 @@ export default function Wishlist() {
                               </span>
                             )}
                             <span className="font-bold dark:text-white text-slate-800 text-sm md:text-lg">
-                              ${product.price}
+                              ${product?.price}
                             </span>
                           </div>
                         </div>
@@ -186,7 +232,7 @@ export default function Wishlist() {
                         {/* Action Buttons */}
                         <div className="col-span-3 flex items-center justify-center gap-1 md:gap-2">
                           <button
-                            onClick={() => addToCart(product?._id)}
+                            onClick={() => addToCart({...product})}
                             disabled={statusString === "Stock Out"}
                             className={`px-2 md:px-3 py-1 md:py-1.5 rounded-md text-xs md:text-sm font-medium transition-colors duration-200 ${
                               statusString === "Stock Out"

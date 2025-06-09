@@ -6,9 +6,10 @@ import Image from "next/image";
 import { useSelector, useDispatch } from "react-redux";
 import type { RootState } from "../../store/store";
 import axiosInstance from "@/api/axios";
-import { updateCartItemDetails } from "@/store/cartSlice";
+import { removeItem, updateCartItemDetails } from "@/store/cartSlice";
 import SideLayout from "@/components/layout/SideLayout";
 import { fallbackImage } from "@/lib/utils";
+import { removeFromWishlist } from "@/store/wishlistSlice";
 
 interface ProductDetails {
   _id: string;
@@ -26,6 +27,9 @@ export default function Cart() {
   const [isOpen, setIsOpen] = useState(true);
   const [cartItems, setCartItems] = useState([]);
 
+  const [totalPrice, setTotal] = useState(0);
+  
+
   const cachedCartItems = useSelector((state: RootState) => state.cart.items);
   const dispatch = useDispatch();
 
@@ -36,6 +40,12 @@ export default function Cart() {
 
       const items = response.data;
       setCartItems(items);
+      const total = items.reduce((sum, item) => {
+        const price = item?.price ?? 0;
+        return sum + price;
+      }, 0);
+
+      setTotal(total);
 
       items.forEach((item: ProductDetails) => {
         dispatch(updateCartItemDetails(item));
@@ -44,6 +54,8 @@ export default function Cart() {
       console.error("Failed to fetch cart items:", error);
     }
   }, [dispatch]);
+
+  //console.log(cartItems);
 
   // ✅ Effect to load cart data on mount or cache change
   useEffect(() => {
@@ -59,7 +71,7 @@ export default function Cart() {
   }, [cachedCartItems, getCartItems]);
 
   const applyCoupon = () => {
-    if (couponCode.trim().toLowerCase() === "save10") {
+    if (couponCode.trim().toLowerCase() === "save50") {
       setCouponApplied(true);
     } else {
       alert("Invalid coupon code");
@@ -69,6 +81,16 @@ export default function Cart() {
   const toggleDetails = () => {
     setIsOpen(!isOpen);
   };
+
+  const handleRemove = async (id: string) => {
+    try {
+      const res = await axiosInstance.post("/cart/removeItem", { itemId : id });
+      dispatch(removeItem(id))
+      //console.log(id)
+    } catch (error) {
+      console.log(error.message)
+    }
+  }
 
   const cartSummary = {
     subtotal: 3999,
@@ -110,8 +132,9 @@ export default function Cart() {
                       <Image
                         className="w-full h-60 md:h-full object-cover"
                         src={
-                          Array.isArray(item?.imageUrls) && item?.imageUrls?.[0]
-                            ? item.imageUrls[0]
+                          Array.isArray(item?.details?.imageUrls) &&
+                          item?.details?.imageUrls?.[0]
+                            ? item?.details?.imageUrls[0]
                             : fallbackImage
                         }
                         alt="The Magnificent Bogra"
@@ -122,46 +145,94 @@ export default function Cart() {
                     <div className="md:w-2/3 lg:w-3/4 flex flex-col">
                       <div className="p-5 flex-grow">
                         <h1 className="text-xl md:text-2xl font-semibold text-gray-800 dark:text-gray-100 transition-all duration-300">
-                          {item.details?.name || "Product Name"}
+                          {item?.details?.name || "Product Name"}
                         </h1>
-                        <p className="text-gray-600 dark:text-gray-300 mt-2 leading-relaxed transition-all duration-300">
-                          Located in Rajshahi Division, Bogra is one of the
-                          oldest and most fascinating towns in Bangladesh
-                        </p>
+
+                        {item?.details?.specs ? (
+                          <div className="mt-4 grid grid-cols-1 sm:grid-cols-2 gap-x-8 gap-y-2">
+                            {Object.entries(item?.details?.specs).map(
+                              ([key, value]) =>
+                                key.toLowerCase() === "color" ? null : (
+                                  <div
+                                    key={key}
+                                    className="text-gray-600 dark:text-gray-300 text-sm">
+                                    <span className="font-medium capitalize">
+                                      {key.replace(/([A-Z])/g, " $1")}:
+                                    </span>{" "}
+                                    <span className="ml-1">
+                                      {value as string}
+                                    </span>
+                                  </div>
+                                )
+                            )}
+                          </div>
+                        ) : (
+                          <p className="text-gray-600 dark:text-gray-300 mt-2 leading-relaxed transition-all duration-300">
+                            Lorem ipsum dolor sit amet consectetur, adipisicing
+                            elit. Voluptate explicabo, placeat incidunt quae
+                            eligendi esse nihil, fugit animi maxime, perferendis
+                            commodi repudiandae ad quos magnam
+                          </p>
+                        )}
                       </div>
+
                       <div className="bg-slate-100 dark:bg-gray-700 p-5 transition-all duration-300">
                         <div className="sm:flex sm:justify-between">
                           <div>
                             <div className="text-md text-gray-700 dark:text-gray-300">
                               <span className="text-gray-900 dark:text-gray-100 font-bold">
-                                196 km
+                                ${item?.details?.price}
                               </span>{" "}
-                              from Dhaka
+                              {/* from Dhaka */}
                             </div>
                             <div className="flex items-center mt-1">
                               <div className="flex">
-                                {[...Array(5)].map((_, i) => (
-                                  <svg
-                                    key={i}
-                                    className="w-4 h-4 mx-px fill-current text-yellow-500"
-                                    xmlns="http://www.w3.org/2000/svg"
-                                    viewBox="0 0 14 14">
-                                    <path d="M6.43 12l-2.36 1.64a1 1 0 0 1-1.53-1.11l.83-2.75a1 1 0 0 0-.35-1.09L.73 6.96a1 1 0 0 1 .59-1.8l2.87-.06a1 1 0 0 0 .92-.67l.95-2.71a1 1 0 0 1 1.88 0l.95 2.71c.13.4.5.66.92.67l2.87.06a1 1 0 0 1 .59 1.8l-2.3 1.73a1 1 0 0 0-.34 1.09l.83 2.75a1 1 0 0 1-1.53 1.1L7.57 12a1 1 0 0 0-1.14 0z" />
-                                  </svg>
-                                ))}
+                                {[...Array(5)].map((_, i) => {
+                                  const full =
+                                    i <
+                                    Math.floor(item?.details?.rating?.average);
+                                  const half =
+                                    i < item?.details?.rating?.average &&
+                                    i >=
+                                      Math.floor(
+                                        item?.details?.rating?.average
+                                      );
+
+                                  return (
+                                    <svg
+                                      key={i}
+                                      xmlns="http://www.w3.org/2000/svg"
+                                      viewBox="0 0 24 24"
+                                      fill="currentColor"
+                                      className={`w-4 h-4 ${
+                                        full
+                                          ? "text-amber-500"
+                                          : half
+                                          ? "text-amber-200"
+                                          : "text-gray-300"
+                                      }`}>
+                                      <path
+                                        fillRule="evenodd"
+                                        d="M10.788 3.21c.448-1.077 1.976-1.077 2.424 0l2.082 5.007 5.404.433c1.164.093 1.636 1.545.749 2.305l-4.117 3.527 1.257 5.273c.271 1.136-.964 2.033-1.96 1.425L12 18.354 7.373 21.18c-.996.608-2.231-.29-1.96-1.425l1.257-5.273-4.117-3.527c-.887-.76-.415-2.212.749-2.305l5.404-.433 2.082-5.006z"
+                                        clipRule="evenodd"
+                                      />
+                                    </svg>
+                                  );
+                                })}
                               </div>
                               <div className="text-gray-600 dark:text-gray-400 ml-2 text-sm md:text-base">
                                 {item.details?.rating?.count || 0} reviews
                               </div>
                             </div>
                           </div>
-                          <button className="mt-3 sm:mt-0 py-2 px-5 md:py-2 md:px-4 bg-blue-600 hover:bg-blue-700 dark:bg-blue-500 dark:hover:bg-blue-600 font-medium text-white rounded-lg shadow-md transition-all duration-300">
-                            Book Ticket
+                          <button
+                            onClick={() => handleRemove(item?.details?._id)}
+                            className="mt-3 sm:mt-0 py-2 px-5 md:py-2 md:px-4 bg-blue-600 hover:bg-blue-700 dark:bg-blue-500 dark:hover:bg-blue-600 font-medium text-white rounded-lg shadow-md transition-all duration-300">
+                            Remove
                           </button>
                         </div>
                         <div className="mt-3 text-gray-600 dark:text-gray-400 text-sm">
-                          *Places to visit: Mahasthangarh, Vasu Bihar &amp; Momo
-                          Inn
+                          Lorem ipsum dolor sit amet consectetur, adipisicing
                         </div>
                       </div>
                     </div>
@@ -191,13 +262,14 @@ export default function Cart() {
                       <div className="flex justify-between text-gray-600 dark:text-gray-300">
                         <span>Bag Total</span>
                         <span className="text-gray-800 dark:text-gray-100">
-                          ₹{cartSummary.subtotal.toFixed(2)}
+                          {/* ₹{totalPrice} */}
+                          ${totalPrice}
                         </span>
                       </div>
                       <div className="flex justify-between text-gray-600 dark:text-gray-300">
                         <span>Bag Discount</span>
                         <span className="text-green-600 dark:text-green-400">
-                          -₹{cartSummary.discount.toFixed(2)}
+                          -₹{couponApplied? totalPrice/2  :  0}
                         </span>
                       </div>
                       <div className="flex justify-between text-gray-600 dark:text-gray-300">
@@ -223,12 +295,12 @@ export default function Cart() {
                           Order Total
                         </span>
                         <span className="text-gray-900 dark:text-white text-lg font-bold">
-                          ₹{cartSummary.total.toFixed(2)}
+                          ₹{(couponApplied && totalPrice !== 0)? totalPrice/2 : totalPrice}
                         </span>
                       </div>
                       {cartSummary.discount > 0 && (
                         <div className="bg-green-50 dark:bg-green-900/20 p-2 rounded text-center text-green-700 dark:text-green-400 text-sm font-medium">
-                          You save ₹{cartSummary.discount.toFixed(2)} on this
+                          You save ₹{totalPrice !== 0 ? totalPrice/2 : 0} on this
                           order
                         </div>
                       )}
@@ -269,7 +341,7 @@ export default function Cart() {
                       {couponApplied && (
                         <div className="flex justify-between items-center bg-green-50 dark:bg-green-900/20 p-2 rounded mt-2">
                           <span className="text-green-700 dark:text-green-400 text-sm">
-                            SAVE10 applied successfully!
+                            SAVE50 applied successfully!
                           </span>
                           <button
                             onClick={() => {
@@ -286,8 +358,11 @@ export default function Cart() {
 
                   {/* Delivery and Payment Options */}
                   <div className="px-4 py-3 border-t border-slate-200 dark:border-gray-700">
-                    <span className="text-xs text-gray-500 dark:text-gray-400">
+                    {/* <span className="text-xs text-gray-500 dark:text-gray-400">
                       *For faster delivery, select AVAILABLE products
+                    </span> */}
+                    <span className="text-xs text-gray-500 dark:text-gray-400">
+                      *Use Coupon SAVE50 to get 50% off on selected items.
                     </span>
                   </div>
 

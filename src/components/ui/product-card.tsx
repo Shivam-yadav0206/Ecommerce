@@ -9,6 +9,10 @@ import { useState } from "react";
 import Image from "next/image";
 import { getClosestTailwindClass } from "@/lib/utils";
 import { fallbackImage } from "@/lib/utils";
+import { useDispatch } from "react-redux";
+import axiosInstance from "@/api/axios";
+import { addItem } from "@/store/cartSlice";
+import { addToWishlist } from "@/store/wishlistSlice";
 
 export interface ProductProps {
   _id: string;
@@ -46,21 +50,55 @@ export default function ProductCard({
   const colorsArray = specs?.color?.split(",");
   const sizeArray = specs?.size?.split(",");
   const oldPrice = price / (1 - discount / 100);
+  const dispatch = useDispatch()
  // console.log(color);
 
   // console.log(colorsArray)
   const [selectedSize, setSelectedSize] = useState<string>(sizes[0] || "");
   const [selectedColor, setSelectedColor] = useState<string>("");
-  
-  const getColorClass = (color: string) => {
-    console.log(color)
-    if (/^#([0-9A-Fa-f]{3}){1,2}$/.test(color)) {
-      return `bg-[${color}]`; // Tailwind arbitrary value syntax
+
+  const handleAddCart = async () => {
+    try {
+      const res = await axiosInstance.post("/cart/addItem", {
+        itemId: _id,
+        newQuantity: 1,
+      });
+      dispatch(addItem({productId: _id,
+      quantity: 1,
+      details: {
+        _id,
+        name,
+        rating,
+        specs,
+        price,
+        stock: 13,
+        imageUrls
+      }
+    }))
+    } catch (error) {
+      console.log(error.message)
     }
-
-    return "bg-gray-500"; //fallback
+  }
+  const handleAddWishlist = async () => {
+    try {
+      const res = await axiosInstance.post("/wish/additem", {
+        itemId: _id,
+      });
+      dispatch(
+        addToWishlist({
+            _id,
+            name,
+            rating,
+            specs,
+            price,
+            stock: 13,
+            imageUrls,
+          })
+      );
+    } catch (error) {
+      console.log(error.message);
+    }
   };
-
   return (
     <Card className="group overflow-hidden border border-border/40 h-full flex flex-col">
       <div className="relative">
@@ -94,10 +132,18 @@ export default function ProductCard({
 
           {/* Quick Action Buttons - Show on Hover */}
           <div className="absolute inset-0 bg-black/40 opacity-0 hover:opacity-100 transition-opacity duration-300 flex items-center justify-center gap-2">
-            <Button size="icon" variant="secondary" className="rounded-full">
+            <Button
+              onClick={handleAddWishlist}
+              size="icon"
+              variant="secondary"
+              className="rounded-full">
               <Heart className="h-4 w-4" />
             </Button>
-            <Button size="icon" variant="secondary" className="rounded-full">
+            <Button
+              onClick={handleAddCart}
+              size="icon"
+              variant="secondary"
+              className="rounded-full">
               <ShoppingCart className="h-4 w-4" />
             </Button>
             <Button
@@ -169,7 +215,9 @@ export default function ProductCard({
               {colorsArray?.map((color) => (
                 <button
                   key={color}
-                  className={`w-5 h-5 rounded-full ${getClosestTailwindClass(color)}  ${
+                  className={`w-5 h-5 rounded-full ${getClosestTailwindClass(
+                    color
+                  )}  ${
                     selectedColor === color
                       ? "ring-2 ring-primary ring-offset-2"
                       : ""

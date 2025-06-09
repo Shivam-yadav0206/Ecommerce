@@ -1,25 +1,27 @@
+// app/page.tsx or components/pages/Home.tsx
 "use client";
 
-import { useEffect, useState } from "react";
+import { useEffect } from "react";
+import { useDispatch, useSelector } from "react-redux";
+import { fetchFeed } from "@/store/feedSlice";
+import { RootState, AppDispatch } from "../store/store";
 import MainLayout from "@/components/layout/MainLayout";
 import HeroCarousel from "@/components/sections/HeroCarousel";
 import FeaturedServices from "@/components/sections/FeaturedServices";
 import CategoriesSection from "@/components/sections/CategoriesSection";
 import ProductsSection from "@/components/sections/ProductsSection";
 import PromoBanners from "@/components/sections/PromoBanners";
-import axiosInstance from "@/api/axios";
-
 
 export default function Home() {
-  const [products, setProducts] = useState({ offers: [], smartPhones: [], notebooks: [] });
-  
+  const dispatch = useDispatch<AppDispatch>();
+
+  const { offers, smartPhones, notebooks, loading, error } = useSelector(
+    (state: RootState) => state.feed
+  );
+
   useEffect(() => {
-    const getProducts = async () => {
-      const res = await axiosInstance.get("/feed")
-      setProducts(res?.data)
-    }
-    getProducts()
-  },[])
+    dispatch(fetchFeed());
+  }, [dispatch]);
 
   return (
     <MainLayout>
@@ -29,18 +31,21 @@ export default function Home() {
       <ProductsSection
         title="Offers"
         type="offers"
-        products={products?.offers}
+        products={offers}
+        loading={loading}
       />
       <PromoBanners />
       <ProductsSection
         title="Notebooks"
         type="notebooks"
-        products={products?.notebooks}
+        products={notebooks}
+        loading={loading}
       />
       <ProductsSection
         title="Smartphones"
         type="smartphones"
-        products={products?.smartPhones}
+        products={smartPhones}
+        loading={loading}
       />
       <PromoBanners />
       <CategoriesSection />
