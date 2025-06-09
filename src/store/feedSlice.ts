@@ -2,13 +2,17 @@
 import { createSlice, PayloadAction, createAsyncThunk } from "@reduxjs/toolkit";
 import axiosInstance from "@/api/axios";
 
+// store/feedSlice.ts
 interface Product {
   _id: string;
   name: string;
   price: number;
-  imageUrls?: string[];
-  // Add other fields as necessary
+  imageUrls?: string[]; // For internal use or API
+  imageSrc: string;     // For UI consumption
+  description: string;
+  category: string;
 }
+
 
 interface FeedState {
   offers: Product[];

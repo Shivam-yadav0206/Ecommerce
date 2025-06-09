@@ -57,7 +57,7 @@ export default function Wishlist() {
     };
 
     getWishlistItems();
-  }, [dispatch]); // Runs once on mount
+  }, [dispatch,cachedWishlistItems]); // Runs once on mount
 
   const getStatusString = (stock: number): string => {
     return stock === 0 ? "Stock Out" : stock < 10 ? "Low Stock" : "In Stock";
