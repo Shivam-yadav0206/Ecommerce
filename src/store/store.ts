@@ -4,7 +4,7 @@ import userReducer from "./userSlice";
 import cartReducer from "./cartSlice";
 import wishlistReducer from "./wishlistSlice";
 import searchReducer from "./searchSlice";
-import feedReducer from "./feedSlice"; // 🆕
+//import feedReducer from "./feedSlice"; // 🆕
 
 export const store = configureStore({
   reducer: {
@@ -12,7 +12,7 @@ export const store = configureStore({
     cart: cartReducer,
     wishlist: wishlistReducer,
     search: searchReducer,
-    feed: feedReducer, // 🆕
+    //feed: feedReducer, // 🆕
   },
 });
 
