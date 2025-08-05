@@ -192,7 +192,7 @@ export default function Wishlist() {
                     return (
                       <div
                         key={product?._id}
-                        className="grid grid-cols-12 gap-4 p-4 md:p-6 hover:bg-slate-600 transition-colors duration-200 items-center">
+                        className="grid grid-cols-12 gap-4 p-4 md:p-6 hover:bg-slate-200 transition-colors duration-200 items-center">
                         {/* Product Name */}
                         <div className="col-span-5 flex items-center gap-2 md:gap-4">
                           <div className="w-10 h-10 md:w-16 md:h-16 bg-gradient-to-br from-slate-200 to-slate-300 rounded-lg md:rounded-xl flex items-center justify-center overflow-hidden flex-shrink-0">

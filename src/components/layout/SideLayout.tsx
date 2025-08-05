@@ -5,6 +5,7 @@ import { clearCart } from "@/store/cartSlice";
 import { clearUser } from "@/store/userSlice";
 import { clearWishlist } from "@/store/wishlistSlice";
 import axiosInstance from "@/api/axios";
+import Image from "next/image";
 import {
   User,
   MapPin,
@@ -32,19 +33,28 @@ export default function SideLayout({ children }: SideLayoutProps) {
   const email = useSelector(
     (state: RootState) => state?.user?.user?.email || ""
   );
+    const avatar = useSelector(
+      (state: RootState) => state?.user?.user?.avatar || ""
+    );
+
   
-  
+
   const handleLogout = async () => {
     try {
       await axiosInstance.post("/logout");
+      delete axiosInstance.defaults.headers.common["Authorization"];
+      localStorage.removeItem("authToken"); 
+
       dispatch(clearUser());
       dispatch(clearCart());
       dispatch(clearWishlist());
-      window.location.href = "/";
-    } catch (error) {
-      console.error("Logout error:", error.message);
+
+      window.location.replace("/");
+    } catch (err) {
+      console.error("Logout error:", err);
     }
   };
+
 
   const sidebarItems = [
     { id: "profile", label: "My Profile", icon: User },
@@ -67,7 +77,8 @@ export default function SideLayout({ children }: SideLayoutProps) {
               {/* Profile Header */}
               <div className="flex items-center gap-4 mb-6 pb-6 border-b border-slate-300 dark:border-gray-700">
                 <div className="w-16 h-16 bg-blue-100 rounded-full flex items-center justify-center">
-                  <User size={28} className="text-blue-600" />
+                  {/* <User size={28} className="text-blue-600" /> */}
+                  <Image src={avatar} height={28} width={28} alt="User Image" />
                 </div>
                 <div className="truncate">
                   <h3 className="font-semibold text-slate-900 dark:text-slate-100 truncate">
