@@ -94,20 +94,32 @@ export default function SideLayout({ children }: SideLayoutProps) {
               <nav className="flex flex-col space-y-1 flex-1">
                 {sidebarItems.map(({ id, label, icon: Icon }) => {
                   const isActive = lastSegment === id;
-                  return (
+                  const isDisabled = id === "coupons" || id === "notifications";
+
+                  return isDisabled ? (
+                    // Render as a disabled div
+                    <div
+                      key={id}
+                      className="flex items-center gap-3 px-4 py-2 rounded-lg text-sm font-medium text-gray-400 dark:text-gray-500 cursor-not-allowed bg-gray-100 dark:bg-gray-800 opacity-60">
+                      <Icon size={18} />
+                      <span className="truncate">{label}</span>
+                    </div>
+                  ) : (
+                    // Normal clickable link
                     <Link
                       key={id}
                       href={`/${id}`}
                       className={`flex items-center gap-3 px-4 py-2 rounded-lg text-sm font-medium transition-colors duration-150 ${
                         isActive
                           ? "bg-blue-50 text-blue-600 border-r-4 border-blue-600"
-                          : "text-slate-700 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-gray-700 hover:text-slate-900 dark:hover:text-white"
+                          : "text-slate-700 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-gray-800 hover:text-slate-900 dark:hover:text-white"
                       }`}>
                       <Icon size={18} />
                       <span className="truncate">{label}</span>
                     </Link>
                   );
                 })}
+
                 <button
                   onClick={handleLogout}
                   className="flex items-center gap-3 px-4 py-2 mt-auto rounded-lg text-sm font-medium text-red-600 hover:bg-red-50 dark:hover:bg-red-700 dark:text-red-400 dark:hover:text-red-200 transition-colors duration-150">

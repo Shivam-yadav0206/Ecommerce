@@ -82,15 +82,31 @@ export default function Cart() {
     setIsOpen(!isOpen);
   };
 
-  const handleRemove = async (id: string) => {
-    try {
-      const res = await axiosInstance.post("/cart/removeItem", { itemId : id });
-      dispatch(removeItem(id))
-      //console.log(id)
-    } catch (error) {
-      console.log(error.message)
-    }
+const handleRemove = async (id: string) => {
+  try {
+    const removedItem = cartItems.find((item) => item.details?._id === id);
+
+    if (!removedItem) return;
+
+    await axiosInstance.post("/cart/removeItem", { itemId: id });
+
+    // ✅ Update Redux
+    dispatch(removeItem(id));
+
+    // ✅ Update local state
+    setCartItems((prevItems) =>
+      prevItems.filter((item) => item.details?._id !== id)
+    );
+
+    // ✅ Subtract price of the removed item from total
+    const removedPrice = removedItem?.details?.price ?? 0;
+    setTotal((prevTotal) => prevTotal - removedPrice);
+  } catch (error) {
+    console.log(error.message);
   }
+};
+
+
 
   const cartSummary = {
     subtotal: 3999,

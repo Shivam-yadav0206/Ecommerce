@@ -313,13 +313,22 @@ export default function LoginModal({ isOpen, onClose }: LoginModalProps) {
                   </div>
 
                   <div className="mt-4 grid grid-cols-3 gap-2">
-                    {["G", "F", "T"].map((icon, idx) => (
-                      <button
-                        key={idx}
-                        className="flex justify-center items-center py-2 px-4 border border-gray-300 rounded-lg hover:bg-gray-50 transition dark:border-gray-600 dark:hover:bg-gray-700 dark:text-white">
-                        {icon}
-                      </button>
-                    ))}
+                    {["G", "F", "X"].map((icon, idx) => {
+                      const isDisabled = icon === "F" || icon === "X"; // disable F and X
+                      return (
+                        <button
+                          key={idx}
+                          disabled={isDisabled}
+                          className={`flex justify-center items-center py-2 px-4 border rounded-lg transition 
+          ${
+            isDisabled
+              ? "border-gray-300 bg-gray-200 cursor-not-allowed dark:bg-gray-700 dark:border-gray-600"
+              : "border-gray-300 hover:bg-gray-50 dark:border-gray-600 dark:hover:bg-gray-700 dark:text-white"
+          }`}>
+                          {icon}
+                        </button>
+                      );
+                    })}
                   </div>
                 </div>
               </div>

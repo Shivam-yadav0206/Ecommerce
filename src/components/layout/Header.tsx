@@ -128,31 +128,42 @@ const PAGES_CATEGORIES = [
   {
     title: "Main Pages",
     items: [
-      { href: "/contact", label: "About Us" },
-      { href: "/wishlist", label: "Wishlist" },
-      { href: "/cart", label: "Shopping Cart" },
-      { href: "/view//6827c5411fe8195b07ae4379", label: "Product Details" },
-      { href: "/checkout", label: "Checkout" },
+      // { href: "/contact", label: "About Us", requiresAuth: false },
+      {
+        href: "/category/6827bfad058c645e30d4598a",
+        label: "Product Details",
+        requiresAuth: false,
+      },
+      { href: "/wishlist", label: "Wishlist", requiresAuth: true },
+      { href: "/cart", label: "Shopping Cart", requiresAuth: true },
+
+      { href: "/cart", label: "Checkout", requiresAuth: true },
     ],
   },
   {
     title: "Account Pages",
     items: [
-      { href: "/my-account", label: "My Account" },
-      { href: "/login", label: "Login" },
-      { href: "/sign-up", label: "Sign Up" },
-      { href: "/forgot-password", label: "Forgot Password" },
+      { href: "/", label: "Login", requiresAuth: false },
+      { href: "/profile", label: "My Account", requiresAuth: true },
+      { href: "/settings", label: "Forgot Password", requiresAuth: true },
     ],
   },
   {
     title: "Support & Policy",
     items: [
-      { href: "/error404", label: "Error 404" },
-      { href: "/privacy-policy", label: "Privacy Policy" },
-      { href: "/terms-and-conditions", label: "Terms & Conditions" },
+      { href: "/contact", label: "Contact Us", requiresAuth: false },
+      { href: "/faq", label: "FAQ's", requiresAuth: false },
+      { href: "/error404", label: "Error 404", requiresAuth: true },
+      { href: "/privacy-policy", label: "Privacy Policy", requiresAuth: true },
+      {
+        href: "/terms-and-conditions",
+        label: "Terms & Conditions",
+        requiresAuth: true,
+      },
     ],
   },
 ];
+
 
 const USER_DROPDOWN_ITEMS = [
   { href: "/profile", label: "Profile", icon: User },
@@ -394,7 +405,13 @@ export default function Header({ setLoginOpen }: HeaderProps) {
                 variant="ghost"
                 size="sm"
                 asChild
-                onClick={() => setLoginOpen(true)}>
+                onClick={() => {
+                  if (isAuthenticated) {
+                    router.push("/profile"); // ✅ navigate programmatically
+                  } else {
+                    setLoginOpen(true); // ✅ open login modal
+                  }
+                }}>
                 <div className="flex items-center gap-1.5">
                   <User className="h-5 w-5" />
                   <span className="hidden lg:inline-block">
@@ -476,6 +493,45 @@ export default function Header({ setLoginOpen }: HeaderProps) {
         <div className="container-custom">
           <NavigationMenu>
             <NavigationMenuList>
+              <NavigationMenuItem>
+                <NavigationMenuTrigger className="bg-transparent">
+                  Pages
+                </NavigationMenuTrigger>
+                <NavigationMenuContent>
+                  <div className="grid grid-cols-3 gap-6 p-6 w-[700px]">
+                    {PAGES_CATEGORIES.map((category) => (
+                      <div key={category.title}>
+                        <h3 className="text-sm font-medium mb-2">
+                          {category.title}
+                        </h3>
+                        <ul className="space-y-1.5">
+                          {category.items.map((item) => {
+                            const disabled =
+                              item.requiresAuth && !isAuthenticated;
+                            return (
+                              <li key={item.href}>
+                                <Link
+                                  href={disabled ? "#" : item.href}
+                                  onClick={(e) =>
+                                    disabled && e.preventDefault()
+                                  }
+                                  className={`text-sm ${
+                                    disabled
+                                      ? "text-gray-400 cursor-not-allowed"
+                                      : "text-muted-foreground hover:text-foreground"
+                                  }`}>
+                                  {item.label}
+                                </Link>
+                              </li>
+                            );
+                          })}
+                        </ul>
+                      </div>
+                    ))}
+                  </div>
+                </NavigationMenuContent>
+              </NavigationMenuItem>
+
               <NavigationMenuItem>
                 <NavigationMenuTrigger className="bg-transparent">
                   Products
@@ -569,34 +625,6 @@ export default function Header({ setLoginOpen }: HeaderProps) {
                         ))}
                       </ul>
                     </div>
-                  </div>
-                </NavigationMenuContent>
-              </NavigationMenuItem>
-
-              <NavigationMenuItem>
-                <NavigationMenuTrigger className="bg-transparent">
-                  Pages
-                </NavigationMenuTrigger>
-                <NavigationMenuContent>
-                  <div className="grid grid-cols-3 gap-6 p-6 w-[700px]">
-                    {PAGES_CATEGORIES.map((category) => (
-                      <div key={category.title}>
-                        <h3 className="text-sm font-medium mb-2">
-                          {category.title}
-                        </h3>
-                        <ul className="space-y-1.5">
-                          {category.items.map((item) => (
-                            <li key={item.href}>
-                              <Link
-                                href={item.href}
-                                className="text-sm text-muted-foreground hover:text-foreground">
-                                {item.label}
-                              </Link>
-                            </li>
-                          ))}
-                        </ul>
-                      </div>
-                    ))}
                   </div>
                 </NavigationMenuContent>
               </NavigationMenuItem>

@@ -5,16 +5,20 @@ import MainLayout from "@/components/layout/MainLayout";
 import Image from "next/image";
 import { useParams } from "next/navigation";
 import axiosInstance from "@/api/axios";
-import { useSelector } from "react-redux";
+import { useDispatch, useSelector } from "react-redux";
 import type { RootState } from "../../../store/store";
 import Reviews from "../../../components/ui/Reviews";
 import PostReviews from "@/components/ui/PostReviews";
+import { addItem } from "@/store/cartSlice";
+import { toast, Toaster } from "sonner";
 
 export default function ProductView() {
   const [mainImage, setMainImage] = useState(
     "https://images.unsplash.com/photo-1505740420928-5e560c06d30e?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w0NzEyNjZ8MHwxfHNlYXJjaHwxfHxoZWFkcGhvbmV8ZW58MHwwfHx8MTcyMTMwMzY5MHww&ixlib=rb-4.0.3&q=80&w=1080"
   );
   const [productdetails, setProductDetails] = useState(null);
+  const [quantity, setQuantity] = useState(1);
+  const dispatch = useDispatch();
 
   const thumbnails = [
     "https://images.unsplash.com/photo-1505751171710-1f6d0ace5a85?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w0NzEyNjZ8MHwxfHNlYXJjaHwxMnx8aGVhZHBob25lfGVufDB8MHx8fDE3MjEzMDM2OTB8MA&ixlib=rb-4.0.3&q=80&w=1080",
@@ -44,8 +48,63 @@ export default function ProductView() {
   }, [productId]);
   
 
+const handleAddCart = async () => {
+  // ✅ Check authentication
+  if (!isAuthenticated) {
+    toast.error("You need to login to add items to the cart.");
+    return;
+  }
+
+  if (!productdetails?.product) {
+    toast.error("Product details not available.");
+    return;
+  }
+
+  const product = productdetails.product;
+
+  try {
+    const res = await axiosInstance.post("/cart/addItem", {
+      itemId: product._id,
+      newQuantity: 1,
+    });
+
+    // ✅ Show success toast
+    toast.success(`${product.name} added to cart successfully.`);
+
+    // ✅ Dispatch Redux without productId in details (fixing TS error)
+    dispatch(
+      addItem({
+        productId: product._id,
+        quantity,
+        details: {
+          _id: product._id,
+          name: product.name,
+          rating: product.rating?.average || 0,
+          specs: product.specs || {},
+          price: product.price,
+          stock: product.stock || 0,
+          imageUrls: product.imageUrls || [],
+        },
+      })
+    );
+
+    console.log("Item added to cart successfully:", res.data);
+  } catch (error) {
+    console.error(
+      "Error adding to cart:",
+      error.response?.data || error.message
+    );
+    toast.error("Failed to add item to cart. Please try again.");
+  }
+};
+
+
+
+
   return (
     <MainLayout>
+      <Toaster />
+
       <div className="bg-gray-50 dark:bg-gray-900 py-12">
         <div className="max-w-7xl mx-auto px-6 md:px-12">
           <div className="flex flex-col md:flex-row gap-10">
@@ -173,7 +232,10 @@ export default function ProductView() {
                   id="quantity"
                   name="quantity"
                   min={1}
-                  defaultValue={1}
+                  value={quantity}
+                  onChange={(e) =>
+                    setQuantity(Math.max(1, Number(e.target.value)))
+                  }
                   className="w-20 rounded-md border border-gray-300 dark:border-gray-600 shadow-sm p-2 text-center text-gray-900 dark:text-gray-100 bg-white dark:bg-gray-800 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 transition"
                 />
               </div>
@@ -182,7 +244,9 @@ export default function ProductView() {
               <div>
                 <button
                   type="button"
-                  className="inline-flex items-center gap-3 bg-indigo-600 hover:bg-indigo-700 focus:bg-indigo-700 text-white px-6 py-3 rounded-md shadow-md transition focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2">
+                  disabled={!isAuthenticated}
+                  onClick={handleAddCart}
+                  className="inline-flex items-center gap-3 bg-indigo-600 hover:bg-indigo-700 focus:bg-indigo-700 text-white px-6 py-3 rounded-md shadow-md transition focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2 disabled:bg-indigo-400">
                   <svg
                     xmlns="http://www.w3.org/2000/svg"
                     fill="none"
@@ -205,7 +269,9 @@ export default function ProductView() {
         </div>
       </div>
 
-      {isAuthenticated && <PostReviews rating={productdetails?.product?.rating} />}
+      {isAuthenticated && (
+        <PostReviews rating={productdetails?.product?.rating} />
+      )}
 
       <Reviews reviews={productdetails?.reviews} />
     </MainLayout>
